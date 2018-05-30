@@ -3,10 +3,13 @@ import java.util.Scanner;
 public class TicTacToe {
 
 	private Scanner reader; //for user input
-	private boolean winning = false; //set to true when a player wins
-	private char player = 'X'; //starting player is X
+	
+	private static char player = ' ';
 	private char[][] gameBoard = new char[3][3]; // 9 possible sections for symbols in game
-	private String line = "-------------------"; //partition of game board
+	
+	private static final String line = "-------------------"; //partition of game board
+	private static final int COL = 3; //size of column is 3
+	private static final int ROW = 3; //size of row is 3
 	
 	public TicTacToe()
 	{
@@ -34,9 +37,9 @@ public class TicTacToe {
 	
 	public void initializeBoard()
 	{
-		for(int i = 0; i < 3; i++)
+		for(int i = 0; i < ROW; i++)
 		{
-			for(int j = 0; j < 3; j++)
+			for(int j = 0; j < COL; j++)
 			{
 				gameBoard[i][j] = '_';
 			}
@@ -46,34 +49,54 @@ public class TicTacToe {
 	public void startGame()
 	{
 		reader = new Scanner(System.in);
+		boolean winning = false; //initially, neither player is winning
+		int turns = 0; //determines when while loop should stop if game is draw
+		player = 'X'; //starting player is X
 		
-		while(winning == false)
+		while(winning == false && turns < ROW * COL) //keep playing the game while there is not a winner
 		{
 			System.out.print("Player " + player + " type position you want a " + player + " on: ");
-			//String userInput = reader.next(); 
-			//userInput = userInput.replaceAll("\\s+", ""); //removes all whitespace in user input
-			//int row = userInput.charAt(0) - 0;
-			//int col = userInput.charAt(1) - 0;
 			
-			int row = reader.nextInt();
-			int col = reader.nextInt();
-			gameBoard[row - 1][col - 1] = player;
-			drawBoard(gameBoard);
+			int r = reader.nextInt(); //the row the user wants to put the symbol on
+			int c = reader.nextInt(); //the column the user wants to put the symbol on
+			gameBoard[r - 1][c - 1] = player; //array starts at 0, so -1
+			
+			turns++;
+			drawBoard();
+			
+			if(turns < 5) //only can have a winner if there have been at least 5 turns
+				player = nextPlayer(player);
+			else
+			{
+				determineWinner(player);
+				player = nextPlayer(player);
+			}
 		}
 		
+		//only get to this portion of code if game is a draw
+		System.out.println("The game is a draw!!! Nobody wins!");
+			
 	}
 	
-	public void drawBoard(char[][] gameBoard)
+	public char nextPlayer(char player)
 	{
-		System.out.print(line + "\n|  "); //initial line
+		if(player == 'X')
+			return 'O';
+		else
+			return 'X';
+	}
+	
+	public void drawBoard()
+	{
+		System.out.print(line + "\n|  "); //initial line and left partition
 		
-		for(int i = 0; i < 3; i++) 
+		for(int i = 0; i < ROW; i++) 
 		{
-			for(int j = 0; j < 3; j++) //goes through each row and prints out symbols
+			for(int j = 0; j < COL; j++) //goes through each row and prints out symbols
 			{
 			    System.out.print( gameBoard[i][j] + "  |  ");
 				
-				if(j == 2) //prints partition if at end of row 
+				if(j == 2) //prints dividing line and left partition if at end of row 
 				{
 					System.out.print("\n" + line + "\n|  ");
 				}
@@ -82,4 +105,46 @@ public class TicTacToe {
 		}
 	}
 	
+	public void determineWinner(char player)
+	{
+		if(horizontalWinner() || verticalWinner() || diagonalWinner()) //if a player got a tic tac toe
+		{
+			System.out.println("Player " + player + "! Congratulations you won!!!");
+		}	
+	}
+	
+	public boolean horizontalWinner()
+	{
+		if((gameBoard[0][0] == gameBoard[0][1] && gameBoard[0][1] == gameBoard[0][2]) ||
+		   (gameBoard[1][0] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[1][2]) ||
+		   (gameBoard[2][0] == gameBoard[2][1] && gameBoard[2][1] == gameBoard[2][2]))
+		{
+			return true;
+		}
+		else
+			return false;
+	}
+	
+	public boolean verticalWinner()
+	{
+		if((gameBoard[0][0] == gameBoard[1][0] && gameBoard[1][0] == gameBoard[2][0]) ||
+		   (gameBoard[0][1] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][1]) ||
+		   (gameBoard[0][2] == gameBoard[1][2] && gameBoard[1][2] == gameBoard[2][2]))
+		{
+			return true;
+		}
+		else
+			return false;
+	}
+	
+	public boolean diagonalWinner()
+	{
+		if((gameBoard[0][0] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][2]) ||
+		   (gameBoard[0][2] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][0]))
+		{
+			return true;
+		}
+		else 
+			return false;
+	}
 }
